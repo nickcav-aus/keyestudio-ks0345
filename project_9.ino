@@ -10,7 +10,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 DS3231 clock1;
 
 // att: STEM EDU
-HX711 hx(12, 13, 128);  // Not too familar with this function. ERROR = no matching function for call to 'HX711::HX711(int, int, int)'
+// HX711 hx(12, 13, 128);  // Not too familar with this function. ERROR = no matching function for call to 'HX711::HX711(int, int, int)'
+HX711 hx;
 
 double ratio, offset;//define two variables, ratio is scalefactor,
 double weight = 0, P = 0, M = 0, D = 0;
@@ -54,6 +55,8 @@ bool scale_flag = false;  //false is pricing scale,true is counting scale is cou
 
 
 void setup() {
+  hx.begin(12, 13, 128); // ATT STEM EDU - This was moved
+  
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
   lcd.init();          // initialize LCD
