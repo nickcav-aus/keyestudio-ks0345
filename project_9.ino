@@ -8,7 +8,6 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 DS3231 clock1;
-// HX711 hx();
 
 HX711 hx(12, 13, 128);  // Not too familar with this function.
 
