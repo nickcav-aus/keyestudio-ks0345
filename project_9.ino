@@ -9,7 +9,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 DS3231 clock1;
 
-HX711 hx(12, 13, 128);  // Not too familar with this function.
+// att: STEM EDU
+HX711 hx(12, 13, 128);  // Not too familar with this function. ERROR = no matching function for call to 'HX711::HX711(int, int, int)'
 
 double ratio, offset;//define two variables, ratio is scalefactor,
 double weight = 0, P = 0, M = 0, D = 0;
