@@ -7,12 +7,8 @@
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-DS3231 clock1;
-
-// att: STEM EDU
-// HX711 hx(12, 13, 128);  // Not too familar with this function. ERROR = no matching function for call to 'HX711::HX711(int, int, int)'
-HX711 hx;
-
+DS3231 clock;
+HX711 hx(12, 13, 128);
 double ratio, offset;//define two variables, ratio is scalefactor,
 double weight = 0, P = 0, M = 0, D = 0;
 int P1, P2, P3, P4, D1, D2, D3, D4, N;
@@ -55,8 +51,6 @@ bool scale_flag = false;  //false is pricing scale,true is counting scale is cou
 
 
 void setup() {
-  hx.begin(12, 13, 128); // ATT STEM EDU - This was moved
-  
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
   lcd.init();          // initialize LCD
@@ -165,7 +159,7 @@ void showDatePage(void) {
 void showDate() {
   // send what's going on to the LCD1602.
   lcd.setCursor(2, 0);
-  year = clock1.getYear();
+  year = clock.getYear();
   y1 = year / 10;
   y2 = year % 10;
   if (year < 10) {
@@ -182,7 +176,7 @@ void showDate() {
   lcd.print("-");
 
   // then the month
-  month = clock1.getMonth(century);
+  month = clock.getMonth(century);
   mon1 = month / 10;
   mon2 = month % 10;
   if (month < 10) {
@@ -199,7 +193,7 @@ void showDate() {
   lcd.print("-");
 
   // then the date
-  date = clock1.getDate();
+  date = clock.getDate();
   d1 = date / 10;
   d2 = date % 10;
   if (date < 10) {
@@ -216,14 +210,14 @@ void showDate() {
   lcd.print(" ");
 
   // and the day of the week
-  week = clock1.getDoW();
+  week = clock.getDoW();
   lcd.setCursor(11, 0);
   lcd.print("Week");
   lcd.setCursor(15, 0);
   lcd.print(week);
 
   // Finally the hour, minute, and second
-  hour = clock1.getHour(h12Flag, pmFlag);
+  hour = clock.getHour(h12Flag, pmFlag);
   h1 = hour / 10;
   h2 = hour % 10;
   if (hour < 10) {
@@ -239,7 +233,7 @@ void showDate() {
   lcd.setCursor(2, 1);
   lcd.print(":");
 
-  minute = clock1.getMinute();
+  minute = clock.getMinute();
   min1 = minute / 10;
   min2 = minute % 10;
   if (minute < 10) {
@@ -255,7 +249,7 @@ void showDate() {
   lcd.setCursor(5, 1);
   lcd.print(":");
 
-  second = clock1.getSecond();
+  second = clock.getSecond();
   s1 = second / 10;
   s2 = second % 10;
   if (second < 10) {
@@ -271,14 +265,14 @@ void showDate() {
   lcd.print(" ");
 
   // Display the temperature
-  if (clock1.getTemperature() < 10) {
+  if (clock.getTemperature() < 10) {
     lcd.setCursor(11, 1);
     lcd.print(" ");
     lcd.setCursor(12, 1);
-    lcd.print(clock1.getTemperature(), 1);
+    lcd.print(clock.getTemperature(), 1);
   } else {
     lcd.setCursor(11, 1);
-    lcd.print(clock1.getTemperature(), 1);
+    lcd.print(clock.getTemperature(), 1);
   }
   lcd.setCursor(15, 1);
   lcd.print("C");
@@ -338,7 +332,7 @@ void showAlarmPage(void) {
                 }
                 if (KF == 1) {
                   KF = 0;
-                  clock1.turnOnAlarm(1);
+                  clock.turnOnAlarm(1);
                   //alarm1Flag = true;
                   break;
                 }
@@ -376,7 +370,7 @@ void showAlarmPage(void) {
                 }
                 if (KF == 1) {
                   KF = 0;
-                  clock1.turnOnAlarm(2);
+                  clock.turnOnAlarm(2);
                   //alarm2Flag = true;
                   break;
                 }
@@ -394,7 +388,7 @@ void showAlarmPage(void) {
           KC = 0;
           switch (col_k) {
             case 0:
-              clock1.turnOffAlarm(1);
+              clock.turnOffAlarm(1);
               row_k = 9;
               col_k = 0;
               //lcd.clear();
@@ -402,7 +396,7 @@ void showAlarmPage(void) {
               break;
 
             case 1:
-              clock1.turnOffAlarm(2);
+              clock.turnOffAlarm(2);
               row_k = 9;
               col_k = 1;
               //lcd.clear();
@@ -432,7 +426,7 @@ void showAlarmPage(void) {
 void showAlarmStatus() {
   lcd.setCursor(0, 0);
   lcd.print("Alarm 1:");
-  if (clock1.checkAlarmEnabled(1)) {
+  if (clock.checkAlarmEnabled(1)) {
     lcd.setCursor(9, 0);
     lcd.print("Y");
   } else {
@@ -442,7 +436,7 @@ void showAlarmStatus() {
 
   lcd.setCursor(0, 1);
   lcd.print("Alarm 2:");
-  if (clock1.checkAlarmEnabled(2)) {
+  if (clock.checkAlarmEnabled(2)) {
     lcd.setCursor(9, 1);
     lcd.print("Y");
   } else {
@@ -452,7 +446,7 @@ void showAlarmStatus() {
 }
 
 void showAlarm1() {
-  clock1.getA1Time(alarmDay, alarmHour1, alarmMinute1, alarmSecond1, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
+  clock.getA1Time(alarmDay, alarmHour1, alarmMinute1, alarmSecond1, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("  Set Alarm 1   ");
@@ -501,7 +495,7 @@ void showAlarm1() {
 }
 
 void showAlarm2() {
-  clock1.getA2Time(alarmDay, alarmHour2, alarmMinute2, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
+  clock.getA2Time(alarmDay, alarmHour2, alarmMinute2, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("  Set Alarm 2   ");
@@ -1126,7 +1120,7 @@ void changeAlarmOne() {
 
     default: break;
   }
-  clock1.setA1Time(alarmDay, alarmHour1, alarmMinute1, alarmSecond1, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
+  clock.setA1Time(alarmDay, alarmHour1, alarmMinute1, alarmSecond1, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
 }
 
 void changeAlarmTwo() {
@@ -1185,16 +1179,16 @@ void changeAlarmTwo() {
 
     default: break;
   }
-  clock1.setA2Time(alarmDay, alarmHour2, alarmMinute2, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
+  clock.setA2Time(alarmDay, alarmHour2, alarmMinute2, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
 }
 
 void alarm() {
   // Indicate whether an alarm went off
-  if (clock1.checkIfAlarm(1)) {    //clock1 1 detects alarm
+  if (clock.checkIfAlarm(1)) {    //clock 1 detects alarm
     tone(buzzer, 2000);
   }
 
-  if (clock1.checkIfAlarm(2)) {    //clock1 2 detects alarm
+  if (clock.checkIfAlarm(2)) {    //clock 2 detects alarm
     tone(buzzer, 1000);
   }
 
@@ -1202,13 +1196,13 @@ void alarm() {
 
 //set year, month, day, week, hour, minute and second of chip
 void setTime() {
-  clock1.setSecond(second);  //set second
-  clock1.setMinute(minute);  //set minute
-  clock1.setHour(hour);      //set hour
-  clock1.setDoW(week);       //set week
-  clock1.setDate(date);      //set day
-  clock1.setMonth(month);    //set month
-  clock1.setYear(year);      //set year
+  clock.setSecond(second);  //set second
+  clock.setMinute(minute);  //set minute
+  clock.setHour(hour);      //set hour
+  clock.setDoW(week);       //set week
+  clock.setDate(date);      //set day
+  clock.setMonth(month);    //set month
+  clock.setYear(year);      //set year
 
 }
 
